@@ -1,52 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
-import GoogleIcon from '@mui/icons-material/Google';
+import { useAuth } from '../AuthContext';
 
 export default function SignInPage() {
-  const { data: session } = useSession();
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (session?.user) {
-      router.push('/');
-    }
-  }, [session, router]);
-
-  const handleCredentialSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    // Hardcoded credentials check
-    if (username === 'admin' && password === 'password123') {
-      // Use the credentials provider
-      const result = await signIn('credentials', {
-        username,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError('Invalid credentials');
-      } else {
-        router.push('/');
-      }
-    } else {
-      setError('Invalid credentials');
+    try {
+      await signIn(email, password);
+      router.push('/');
+    } catch (error) {
+      setError('Failed to sign in. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,13 +58,14 @@ export default function SignInPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleCredentialSignIn}>
+          <form onSubmit={handleSignIn}>
             <TextField
-              label="Username"
+              label="Email"
+              type="email"
               variant="outlined"
               fullWidth
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -96,22 +81,12 @@ export default function SignInPage() {
               type="submit"
               variant="contained"
               fullWidth
+              disabled={loading}
               sx={{ mb: 2 }}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-
-          <Divider sx={{ my: 2 }}>OR</Divider>
-
-          <Button
-            onClick={() => signIn('google', { callbackUrl: '/' })}
-            variant="outlined"
-            fullWidth
-            startIcon={<GoogleIcon />}
-          >
-            Sign in with Google
-          </Button>
         </CardContent>
       </Card>
     </Box>

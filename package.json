@@ -1,5 +1,5 @@
 {
-    "name": "caportal-frontend",
+    "name": "greenroom",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -21,11 +21,8 @@
         "dayjs": "^1.11.13",
         "firebase": "^11.6.0",
         "next": "^15.0.0",
-        "next-auth": "5.0.0-beta.25",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-        "tedious": "^18.6.1",
-        "uuid": "^11.1.0",
         "zod": "^3.22.4"
     },
     "devDependencies": {

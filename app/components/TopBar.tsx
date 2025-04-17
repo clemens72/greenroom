@@ -6,8 +6,6 @@ import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import EventIcon from '@mui/icons-material/Event';
 import BusinessIcon from '@mui/icons-material/Business';
-import ContactsIcon from '@mui/icons-material/Contacts';
-import InventoryIcon from '@mui/icons-material/Inventory';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -26,6 +24,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../auth/AuthContext';
 
 const drawerWidth = 240;
 const miniDrawerWidth = 65;
@@ -41,6 +40,7 @@ export default function TopBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const router = useRouter();
   const theme = useTheme();
+  const { user, signOut } = useAuth();
 
   const handleNavClick = (path: string) => {
     router.push(path);
@@ -57,6 +57,16 @@ export default function TopBar() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.push('/auth/signin');
+    } catch (error) {
+      console.error('Failed to sign out:', error);
+    }
+    handleMenuClose();
   };
 
   const mobileDrawer = (
@@ -174,7 +184,7 @@ export default function TopBar() {
             }}
             onClick={() => handleNavClick('/')}
           >
-            Class Acts Entertainment
+            Green Room
           </Typography>
 
           <Tooltip title="Account">
@@ -192,6 +202,7 @@ export default function TopBar() {
                   color: theme.palette.primary.main,
                 }}
               >
+                {user?.email?.[0].toUpperCase()}
               </Avatar>
             </IconButton>
           </Tooltip>
@@ -231,7 +242,7 @@ export default function TopBar() {
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
             <MenuItem>
-              {"Test User"}
+              {user?.email}
             </MenuItem>
             <Divider />
             <MenuItem onClick={() => handleNavClick('/admin')}>
@@ -241,7 +252,7 @@ export default function TopBar() {
               Admin Settings
             </MenuItem>
             <Divider />
-            <MenuItem>
+            <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
